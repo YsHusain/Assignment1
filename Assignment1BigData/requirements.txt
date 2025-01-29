@@ -1,0 +1,6 @@
+PyPDF2
+PyMuPDF
+pandas
+camelot-py
+opencv-python
+docling
