@@ -8,7 +8,7 @@
 # # # Function to save image from URL
 # # def save_image(img_url, headers, image_folder, md_file):
 # #     """Save an image from a URL to the specified folder and log in the markdown file."""
-# #     try:
+# #     try:pip
 # #         img_response = requests.get(img_url, headers=headers)
 # #         img_response.raise_for_status()
 # #         img_name = os.path.basename(img_url.split('?')[0]) or "image.jpg"

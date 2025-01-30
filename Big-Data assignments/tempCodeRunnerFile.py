@@ -1,64 +1,110 @@
-import requests
 import os
-import logging
+import requests
+import ssl
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from docling.document_converter import DocumentConverter
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Disable SSL verification
+ssl._create_default_https_context = ssl._create_unverified_context
 
-# Your Diffbot API token (Consider loading from environment variables)
-api_token = os.getenv('DIFFBOT_API_TOKEN', 'your_default_token')  # Loading from environment variable
-if api_token == 'your_default_token':
-    logging.warning("API token is using the default. Please set the environment variable.")
+# Function to save image from URL
+def save_image(img_url, headers, image_folder, md_file):
+    try:
+        img_response = requests.get(img_url, headers=headers)
+        img_response.raise_for_status()
+        img_name = os.path.basename(img_url.split('?')[0]) or "image.jpg"
+        img_path = os.path.join(image_folder, img_name)
+        with open(img_path, 'wb') as f:
+            f.write(img_response.content)
+        md_file.write(f"![{img_name}]({image_folder}/{img_name})\n")
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading image {img_url}: {e}")
 
-# URL to scrape
-url = 'https://books.toscrape.com/'
+# Function to scrape a website and extract content
+def scrape_website(url, md_file):
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
 
-# Diffbot API endpoint
-api_endpoint = f'https://api.diffbot.com/v3/article?token={api_token}&url={url}'
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-# Sending the request to Diffbot API
-response = requests.get(api_endpoint)
+        page_title = soup.title.string if soup.title else "No title found"
+        md_file.write(f"## Page Title\n\n{page_title}\n\n")
 
-# Check if the response is successful
-if response.status_code == 200:
-    data = response.json()
-    
-    # Extracting the article content and image URLs
-    article_content = data.get('objects', [])[0].get('text', 'No article content found.')
-    images = data.get('objects', [])[0].get('images', [])
-    
-    # Create the Markdown content
-    md_content = "# Article from Books to Scrape\n\n"
-    md_content += "## Content\n\n"
-    md_content += article_content + "\n\n"
+        md_file.write("## Hyperlinks on the page:\n\n")
+        for link in soup.find_all('a', href=True):
+            md_file.write(f"- [{link['href']}]({link['href']})\n")
 
-    # Directory to store images
-    image_dir = "downloaded_images"
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
+        md_file.write("\n## Paragraphs on the page:\n\n")
+        for paragraph in soup.find_all('p'):
+            md_file.write(f"{paragraph.text.strip()}\n\n")
 
-    # Download and save images  
-    for idx, image in enumerate(images, 1):
-        image_url = image.get('url')
-        if image_url:
-            try:
-                response = requests.get(image_url, stream=True)
-                if response.status_code == 200:
-                    extension = image_url.split('.')[-1]
-                    filename = f"image_{idx}.{extension}"
-                    filepath = os.path.join(image_dir, filename)
-                    with open(filepath, 'wb') as f:
-                        f.write(response.content)
-                    md_content += f"![Image {idx}]({filepath})\n"
-                else:
-                    logging.warning(f"Failed to download image {idx} from {image_url}")
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Error downloading image {idx}: {e}")
+        md_file.write("\n## Images on the page:\n\n")
+        image_folder = 'images_open_source'
+        os.makedirs(image_folder, exist_ok=True)
+        for img in soup.find_all('img'):
+            img_url = img.get('src')
+            if img_url:
+                full_img_url = urljoin(url, img_url)
+                save_image(full_img_url, headers, image_folder, md_file)
 
-    # Save the Markdown content to a file
-    with open('converted_article.md', 'w', encoding='utf-8') as f:
-        f.write(md_content)
+        md_file.write("\n## Tables on the page:\n\n")
+        for table in soup.find_all('table'):
+            rows = table.find_all('tr')
+            for row in rows:
+                cells = row.find_all(['th', 'td'])
+                md_file.write("| " + " | ".join(cell.text.strip() for cell in cells) + " |\n")
+            md_file.write("\n")
 
-    logging.info("Article converted successfully and saved to 'converted_article.md'")
-else:
-    logging.error(f"API request failed with status code {response.status_code}")
+        md_file.write("\n## Charts on the page:\n\n")
+        for chart in soup.find_all(['img', 'svg']):
+            if chart.name == 'img':
+                chart_url = chart.get('src')
+                md_file.write(f"- Chart Image: ![Chart Image]({chart_url})\n")
+            elif chart.name == 'svg':
+                md_file.write("- SVG Chart: Found inline SVG (content not displayed here).\n")
+
+        print(f"Web scraping completed and saved to {md_file.name}")
+
+    except requests.exceptions.RequestException as e:
+        print("Error fetching the website:", e)
+
+# Function to convert document to markdown using docling
+def convert_document_to_markdown(url):
+    try:
+        converter = DocumentConverter()
+        result = converter.convert(url)
+        
+        md_content = result.document.export_to_markdown()
+
+        md_filename = "converted_document.md"
+        with open(md_filename, "w", encoding="utf-8") as md_file:
+            md_file.write(md_content)
+            print(f"Document converted and saved to {md_filename}")
+        return md_filename
+
+    except Exception as e:
+        print(f"Error converting document: {e}")
+        return None
+
+# Main function to handle both scraping and conversion
+def scrape_and_convert(url, document_url=None):
+    md_filename = "scraped_and_converted_output.md"
+    with open(md_filename, "w", encoding="utf-8") as md_file:
+        scrape_website(url, md_file)
+
+        if document_url:
+            converted_md_file = convert_document_to_markdown(document_url)
+            if converted_md_file and os.path.exists(converted_md_file):
+                with open(converted_md_file, "r", encoding="utf-8") as doc_file:
+                    md_file.write("\n## Converted Document Content:\n\n")
+                    md_file.write(doc_file.read())
+            else:
+                print("Converted document not found, skipping append step.")
+
+    print(f"Scraped and converted content saved to {md_filename}")
+
+# Example: Use the function to scrape a webpage and convert a document
+scrape_and_convert("https://www.northeastern.edu", "https://arxiv.org/pdf/2408.09869")
