@@ -52,7 +52,7 @@ def display_content(data, tool_option):
 
 def fetch_scraped_content(url, tool_option):
     """Fetch and display content from the API"""
-    endpoint = "http://127.0.0.1:8000/scrape-open-source/" if tool_option == "Open-Source" else "http://127.0.0.1:8000/scrape-article-enterprise/"
+    endpoint = "https://fastapi-service-607698884796.us-central1.run.app/" if tool_option == "Open-Source" else "http://127.0.0.1:8000/scrape-article-enterprise/"
     
     try:
         with st.spinner('Extracting content...'):
