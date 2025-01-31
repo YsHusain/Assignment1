@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "Assignment1/Big-Data assignments/backend/api_test.py",
+      "src": "Big-Data assignments/backend/api_test.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "Assignment1/Big-Data assignments/backend/api_test.py"
+      "dest": "Big-Data assignments/backend/api_test.py"
     }
   ],
   "env": {
