@@ -230,7 +230,6 @@ async def scrape_article_enterprise(request: URLRequest):
     except Exception as e:
         print(f"Error in enterprise scraping: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
 @app.post("/process-pdf/enterprise")
 async def process_pdf_enterprise(file: UploadFile = File(...)):
     try:
@@ -242,24 +241,33 @@ async def process_pdf_enterprise(file: UploadFile = File(...)):
         temp_dir.mkdir(exist_ok=True)
         temp_path = temp_dir / "temp_input.pdf"
         
+        # Save uploaded file
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Process PDF using enterprise extractor
+        processor = ExtractTextTableInfoWithFiguresTablesRenditionsFromPDF()
+        
+        # Process the file
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        output_path = f"output/ExtractEnterprise/extract{timestamp}.zip"
+        markdown_output = f"output/enterprise_converted_{timestamp}.md"
+        
         try:
-            # Save uploaded file
-            with open(temp_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-            
-            # Process PDF using enterprise extractor
-            processor = ExtractTextTableInfoWithFiguresTablesRenditionsFromPDF()
-            output_zip, markdown_output = processor.process_pdf(str(temp_path))
+            processor.convert_extracted_pdf_to_markdown(output_path, markdown_output)
             
             return {
                 "filename": file.filename,
-                "output_zip": output_zip,
+                "output_zip": output_path,
                 "markdown_output": markdown_output,
                 "status": "success"
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"PDF processing failed: {str(e)}")
-        
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
     finally:
         # Clean up temporary files
         if temp_dir.exists():
