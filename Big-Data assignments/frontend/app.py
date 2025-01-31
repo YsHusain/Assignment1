@@ -6,22 +6,6 @@ import os
 from datetime import datetime
 import json
 
-
-# Initialize S3 client
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-    region_name=os.getenv("AWS_REGION")
-)
-
-# Add a title to the app
-st.title("Content Extraction Tool")
-
-# Sidebar for selecting where to extract content from
-st.sidebar.header("Select the Content Extraction Source")
-option = st.sidebar.selectbox("Where do you want to extract content from?", ["Web-Site", "Pdf"])
-
 # URL Validation
 def is_valid_url(url):
     pattern = r'^(https?://)?([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+)(:[0-9]+)?(/.*)?$'
@@ -182,28 +166,39 @@ def fetch_pdf_content(uploaded_file, tool_option):
         print(f"General Exception: {str(e)}")
 
 # Main screen content based on sidebar selection
-if option == "Web-Site":
-    st.sidebar.subheader("Choose the Extraction Tool for Web-Site")
-    tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
+def main():
+    # Add a title to the app
+    st.title("Content Extraction Tool")
+    # Sidebar for selecting where to extract content from
+    st.sidebar.header("Select the Content Extraction Source")
+    option = st.sidebar.selectbox("Where do you want to extract content from?", ["Web-Site", "Pdf"])
 
-    url = st.sidebar.text_input("Enter URL here:")
-    if st.sidebar.button("Extract Content"):
-        if url:
-            if is_valid_url(url):
-                fetch_scraped_content(url, tool_option)
+    if option == "Web-Site":
+        st.sidebar.subheader("Choose the Extraction Tool for Web-Site")
+        tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
+
+        url = st.sidebar.text_input("Enter URL here:")
+        if st.sidebar.button("Extract Content"):
+            if url:
+                if is_valid_url(url):
+                    fetch_scraped_content(url, tool_option)
+                else:
+                    st.error("Invalid URL! Please enter a valid URL starting with 'http://' or 'https://'.")
             else:
-                st.error("Invalid URL! Please enter a valid URL starting with 'http://' or 'https://'.")
-        else:
-            st.error("Please enter a URL.")
+                st.error("Please enter a URL.")
 
-elif option == "Pdf":
-    st.sidebar.subheader("Choose the PDF Processing Tool")
-    tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
-    
-    uploaded_file = st.sidebar.file_uploader("Choose a PDF file", type="pdf")
-    
-    if st.sidebar.button("Process PDF"):
-        if uploaded_file:
-            fetch_pdf_content(uploaded_file, tool_option)
-        else:
-            st.error("Please upload a PDF file.")
+    elif option == "Pdf":
+        st.sidebar.subheader("Choose the PDF Processing Tool")
+        tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
+        
+        uploaded_file = st.sidebar.file_uploader("Choose a PDF file", type="pdf")
+        
+        if st.sidebar.button("Process PDF"):
+            if uploaded_file:
+                fetch_pdf_content(uploaded_file, tool_option)
+            else:
+                st.error("Please upload a PDF file.")
+
+
+if __name__ == "__main__":
+    main()
