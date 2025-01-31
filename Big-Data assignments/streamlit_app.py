@@ -166,14 +166,14 @@ def fetch_pdf_content(uploaded_file, tool_option):
         print(f"General Exception: {str(e)}")
 
 # Main screen content based on sidebar selection
-def main():
-    # Add a title to the app
-    st.title("Content Extraction Tool")
-    # Sidebar for selecting where to extract content from
-    st.sidebar.header("Select the Content Extraction Source")
-    option = st.sidebar.selectbox("Where do you want to extract content from?", ["Web-Site", "Pdf"])
 
-    if option == "Web-Site":
+# Add a title to the app
+st.title("Content Extraction Tool")
+    # Sidebar for selecting where to extract content from
+st.sidebar.header("Select the Content Extraction Source")
+option = st.sidebar.selectbox("Where do you want to extract content from?", ["Web-Site", "Pdf"])
+
+if option == "Web-Site":
         st.sidebar.subheader("Choose the Extraction Tool for Web-Site")
         tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
 
@@ -187,7 +187,7 @@ def main():
             else:
                 st.error("Please enter a URL.")
 
-    elif option == "Pdf":
+elif option == "Pdf":
         st.sidebar.subheader("Choose the PDF Processing Tool")
         tool_option = st.sidebar.selectbox("Which tool would you prefer?", ["Open-Source", "Enterprise"])
         
@@ -197,8 +197,4 @@ def main():
             if uploaded_file:
                 fetch_pdf_content(uploaded_file, tool_option)
             else:
-                st.error("Please upload a PDF file.")
-
-
-if __name__ == "__main__":
-    main()
+                st.error("Please upload a PDF file.")    
