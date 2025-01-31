@@ -52,7 +52,7 @@ def display_content(data, tool_option):
 
 def fetch_scraped_content(url, tool_option):
     """Fetch and display content from the API"""
-    endpoint = "https://fastapi-service-607698884796.us-central1.run.app/" if tool_option == "Open-Source" else "http://127.0.0.1:8000/scrape-article-enterprise/"
+    endpoint = "https://fastapi-service-607698884796.us-central1.run.app/scrape-open-source/" if tool_option == "Open-Source" else "https://fastapi-service-607698884796.us-central1.run.app/scrape-article-enterprise/"
     
     try:
         with st.spinner('Extracting content...'):
@@ -91,7 +91,7 @@ def fetch_scraped_content(url, tool_option):
 
 def fetch_pdf_content(uploaded_file, tool_option):
     """Process uploaded PDF file using either enterprise or opensource processor"""
-    endpoint = "http://127.0.0.1:8000/process-pdf/enterprise" if tool_option == "Enterprise" else "http://127.0.0.1:8000/process-pdf/opensource"
+    endpoint = "https://fastapi-service-607698884796.us-central1.run.app/process-pdf/enterprise" if tool_option == "Enterprise" else "https://fastapi-service-607698884796.us-central1.run.app/process-pdf/opensource"
     
     try:
         with st.spinner('Processing PDF...'):
