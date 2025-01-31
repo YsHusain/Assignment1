@@ -1,4 +1,18 @@
+fastapi
+uvicorn
 boto3
+PyPDF2
+PyMuPDF
+pymupdf
+pytest
+python-dotenv
+docling
+python-multipart
+requests
+bs4
 streamlit
 requests
+beautifulsoup4
+
+python-dotenv==1.0.0
  
