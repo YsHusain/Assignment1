@@ -124,7 +124,7 @@ class ExtractTextTableInfoWithFiguresTablesRenditionsFromPDF:
             # Extract the zip file
             with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
                 zip_ref.extractall(temp_dir)
-       
+
             # Read the structuredData.json file
             with open(os.path.join(temp_dir, 'structuredData.json'), 'r', encoding='utf-8') as f:
                 data = json.load(f)
