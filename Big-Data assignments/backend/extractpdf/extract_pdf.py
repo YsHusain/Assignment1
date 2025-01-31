@@ -225,7 +225,7 @@ class ExtractTextTableInfoWithFiguresTablesRenditionsFromPDF:
             shutil.rmtree(temp_dir, ignore_errors=True)
    
    
-   
+
    
     # Generates a string containing a directory structure and file name for the output file
     @staticmethod
