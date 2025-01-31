@@ -87,3 +87,4 @@ pdf_path = "C:/PDF to be Extracted/MergedPDF.pdf"
 # Extract content
 content, output_directory = extract_pdf_content(pdf_path)
 print(f"Content extracted to: {output_directory}")
+print("Test")
