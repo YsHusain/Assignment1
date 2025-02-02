@@ -8,7 +8,6 @@ Video - https://northeastern-my.sharepoint.com/personal/shajapurwalayusuf_h_nort
 
 Fast Api https://team-assignment-three.vercel.app/
 
-Streamlit https://contentextracter.streamlit.app/
 
 Assignment 1 - Content Extractor Tool
 Husain
