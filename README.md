@@ -9,10 +9,15 @@ Video - https://northeastern-my.sharepoint.com/personal/shajapurwalayusuf_h_nort
 Fast Api https:https://fastapi-service-607698884796.us-central1.run.app/docs
 
 
+
 Assignment 1 - Content Extractor Tool
 Husain
 Dhrumil Patel
 Sahil Kasliwal
+
+Contribution:
+Sahil - 50%
+
 
 Introduction
 
@@ -118,5 +123,6 @@ Files are organized in AWS S3 bucket with metadata tags.
 Backend Architecture:
 FastAPI handles API endpoints for upload, processing, and retrieval tasks.
 Database interactions store metadata about processed files.
+
 
 
